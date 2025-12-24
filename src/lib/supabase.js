@@ -5,7 +5,28 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const isValidUrl = (url) => {
+  try {
+    return new URL(url).protocol.startsWith('http');
+  } catch (e) {
+    return false;
+  }
+}
+
+export const supabase = isValidUrl(supabaseUrl) && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : { 
+      // Mock client that log errors instead of crashing
+      auth: { 
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        signUp: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+        signInWithPassword: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+        signInWithOAuth: () => Promise.resolve({ error: { message: 'Supabase not configured' } }),
+        signOut: () => Promise.resolve({ error: null }),
+      },
+      from: () => ({ select: () => ({ eq: () => ({ single: () => ({ data: null, error: null }), order: () => ({ data: [], error: null }) }) }) })
+    };
 
 // Auth helpers
 export const signUp = async (email, password, name) => {
