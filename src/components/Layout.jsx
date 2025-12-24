@@ -58,7 +58,35 @@ export default function Layout({ children }) {
               <Zap size={14} className="text-yellow-400 group-hover:scale-110 transition-transform" />
               <span className="text-sm font-bold text-white">{credits}</span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 border-2 border-white/20"></div>
+            {/* User Profile Menu */}
+            <div className="relative group">
+              <button className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 border-2 border-white/20 hover:border-white/50 transition-colors focus:outline-none"></button>
+              
+              <div className="absolute right-0 top-full mt-2 w-48 py-2 bg-[#1a1d24] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right z-50">
+                <div className="px-4 py-2 border-b border-white/5">
+                   <p className="text-sm font-bold text-white truncate">{useStore.getState().user?.name || 'User'}</p>
+                   <p className="text-xs text-gray-500 truncate">{useStore.getState().user?.email || 'No email'}</p>
+                </div>
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => {
+                     // Clear local state
+                     useStore.getState().logout(); 
+                     // Clear supabase session
+                     useStore.getState().signOutSupabase();
+                     navigate('/login');
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </nav>
