@@ -51,7 +51,21 @@ function WizardPage() {
 import Pricing from './pages/Pricing';
 
 function App() {
-  const { setCurrentPrd } = useStore();
+  const { setCurrentPrd, initializeAuth, onAuthStateChange } = useStore();
+
+  React.useEffect(() => {
+    // Initialize Supabase Auth safely
+    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
+    if (isSupabaseConfigured) {
+      initializeAuth();
+      const { data: { subscription } } = onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          initializeAuth();
+        }
+      });
+      return () => subscription?.unsubscribe();
+    }
+  }, [initializeAuth, onAuthStateChange]);
 
   React.useEffect(() => {
     // Handle Demo Data Load Event
