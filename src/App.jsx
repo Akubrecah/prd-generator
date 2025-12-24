@@ -92,6 +92,14 @@ function App() {
 
   return (
     <BrowserRouter>
+      {/* Configuration Warning - Only shows if URL is conspicuously wrong */}
+      {import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('supabase.co') && (
+        <div className="bg-red-600 text-white p-4 text-center font-bold absolute top-0 w-full z-[100]">
+           CRITICAL CONFIG ERROR: VITE_SUPABASE_URL seems to be set to your website URL, not the Supabase API URL.
+           Please fix it in Netlify Site Settings.
+        </div>
+      )}
+
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
