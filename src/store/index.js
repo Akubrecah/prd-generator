@@ -174,6 +174,10 @@ export const useStore = create(
           get().syncPrdsFromSupabase();
         }
       },
+
+      onAuthStateChange: (callback) => {
+        return supabase.auth.onAuthStateChange(callback);
+      },
     }),
     {
       name: 'prd-generator-storage',
