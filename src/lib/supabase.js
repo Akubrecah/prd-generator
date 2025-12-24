@@ -7,8 +7,10 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key
 
 const isValidUrl = (url) => {
   try {
-    return new URL(url).protocol.startsWith('http');
-  } catch (e) {
+    const parsed = new URL(url);
+    return parsed.protocol.startsWith('http') && 
+           (parsed.hostname.includes('supabase.co') || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+  } catch {
     return false;
   }
 }
