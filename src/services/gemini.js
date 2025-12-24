@@ -1,23 +1,34 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
+// Using direct REST API to bypass SDK issues
 export const generateContent = async (apiKey, prompt) => {
   if (!apiKey) throw new Error("API Key is missing");
   
-  const genAI = new GoogleGenerativeAI(apiKey);
-  // Using gemini-1.5-flash as it is the current standard
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
-
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+  
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Gemini API Error:", errorData);
+      throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     console.log("Gemini Response:", text);
     return text;
   } catch (error) {
-    console.error("Gemini Generation Error Full:", error);
-    if (error.response?.candidates?.[0]?.finishReason === 'SAFETY') {
-      throw new Error("Content generation blocked by safety filters.");
-    }
+    console.error("Gemini Generation Error:", error);
     throw error;
   }
 };
