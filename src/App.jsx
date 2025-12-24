@@ -51,24 +51,10 @@ function WizardPage() {
 import Pricing from './pages/Pricing';
 
 function App() {
-  const { setCurrentPrd, initializeAuth, onAuthStateChange } = useStore();
+  const { setCurrentPrd } = useStore();
 
   React.useEffect(() => {
-    // 1. Initialize Supabase Auth
-    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
-    if (isSupabaseConfigured) {
-      initializeAuth();
-      const { data: { subscription } } = onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          initializeAuth();
-        }
-      });
-      return () => subscription?.unsubscribe();
-    }
-  }, [initializeAuth, onAuthStateChange]);
-
-  React.useEffect(() => {
-    // 2. Handle Demo Data Load Event
+    // Handle Demo Data Load Event
     const handleLoad = () => {
         const demoData = {
           projectName: 'Orbital Analytics Platform',
@@ -92,17 +78,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* Configuration Warning - Only shows if URL is conspicuously wrong */}
-      {import.meta.env.VITE_SUPABASE_URL && !import.meta.env.VITE_SUPABASE_URL.includes('supabase.co') && (
-        <div className="fixed top-0 left-0 w-full bg-red-600 text-white p-4 text-center font-bold z-[9999] shadow-xl">
-           CRITICAL CONFIG ERROR: VITE_SUPABASE_URL is set to "{import.meta.env.VITE_SUPABASE_URL}".
-           <br/>
-           It should be your Supabase API URL (e.g. https://xyz.supabase.co).
-           <br/>
-           Please fix it in Netlify Site Settings &gt; Environment Variables.
-        </div>
-      )}
-
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
