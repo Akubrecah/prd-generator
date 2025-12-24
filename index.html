@@ -8,6 +8,15 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="global-error" style="color: red; padding: 20px; font-family: monospace; white-space: pre-wrap;"></div>
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        document.getElementById('global-error').textContent += `Error: ${message}\nSource: ${source}:${lineno}:${colno}\n\n`;
+      };
+      window.onunhandledrejection = function(event) {
+        document.getElementById('global-error').textContent += `Unhandled Rejection: ${event.reason}\n\n`;
+      }
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
