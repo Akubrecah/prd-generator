@@ -16,7 +16,7 @@ function ProtectedRoute({ children }) {
 }
 
 function WizardPage() {
-  const { currentPrd, setCurrentPrd, addPrd, history } = useStore();
+  const { currentPrd, addPrd } = useStore();
   
   // Initialize with store state or default
   const [formData, setFormData] = React.useState(currentPrd || {
@@ -51,10 +51,24 @@ function WizardPage() {
 import Pricing from './pages/Pricing';
 
 function App() {
-  const [key, setKey] = React.useState(0);
-  const { setCurrentPrd } = useStore();
+  const { setCurrentPrd, initializeAuth, onAuthStateChange } = useStore();
 
   React.useEffect(() => {
+    // 1. Initialize Supabase Auth
+    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL?.includes('supabase.co');
+    if (isSupabaseConfigured) {
+      initializeAuth();
+      const { data: { subscription } } = onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          initializeAuth();
+        }
+      });
+      return () => subscription?.unsubscribe();
+    }
+  }, [initializeAuth, onAuthStateChange]);
+
+  React.useEffect(() => {
+    // 2. Handle Demo Data Load Event
     const handleLoad = () => {
         const demoData = {
           projectName: 'Orbital Analytics Platform',
@@ -70,15 +84,11 @@ function App() {
           timeline: []
         };
         setCurrentPrd({...demoData, id: crypto.randomUUID(), createdAt: Date.now(), lastModified: Date.now() });
-        // Redirect to editor
-        // We can't navigate easily from here without context or hook. 
-        // But the WizardPage reads from store 'currentPrd'.
-        // We just need to trigger a re-mount or navigate.
         window.location.href = '/editor'; 
     };
     window.addEventListener('load-template', handleLoad);
     return () => window.removeEventListener('load-template', handleLoad);
-  }, []);
+  }, [setCurrentPrd]);
 
   return (
     <BrowserRouter>
