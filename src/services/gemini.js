@@ -9,9 +9,14 @@ export const generateContent = async (apiKey, prompt) => {
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text();
+    const text = response.text();
+    console.log("Gemini Response:", text);
+    return text;
   } catch (error) {
-    console.error("Gemini Generation Error:", error);
+    console.error("Gemini Generation Error Full:", error);
+    if (error.response?.candidates?.[0]?.finishReason === 'SAFETY') {
+      throw new Error("Content generation blocked by safety filters.");
+    }
     throw error;
   }
 };

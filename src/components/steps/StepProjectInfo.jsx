@@ -26,15 +26,25 @@ export function StepProjectInfo({ data, updateData }) {
     const platformContext = data.platform ? `A ${data.platform} Application` : "A software application";
     const prompt = AI_PROMPTS.vision(data.projectName, platformContext); 
     const response = await generateContent(currentApiKey, prompt);
+    
+    if (!response) {
+      alert("AI returned empty response. Please try again.");
+      return;
+    }
+
     // Parse JSON safely
     try {
        const jsonStr = response.substring(response.indexOf('{'), response.lastIndexOf('}') + 1);
+       if (!jsonStr) throw new Error("No JSON found");
        const result = JSON.parse(jsonStr);
        updateData('vision', result.vision);
        updateData('problemStatement', result.problemStatement);
     } catch {
        // Fallback text if not JSON
+       console.warn("AI Response not JSON:", response);
        updateData('vision', response);
+       // Alert the user so they know it wasn't perfect
+       // alert("AI Note: Response format was irregular but content was added.");
     }
   };
 
