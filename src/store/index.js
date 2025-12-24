@@ -116,7 +116,7 @@ export const useStore = create(
       addCredits: (amount) => set((state) => ({ credits: state.credits + amount })),
 
       // User Settings
-      apiKey: '',
+      apiKey: 'AIzaSyAnNf8zC57swK0TdrQXtyv0Ub7MmK2J6zM',
       setApiKey: (key) => set({ apiKey: key }),
 
       // Project History
