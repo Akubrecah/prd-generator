@@ -12,23 +12,27 @@ const STATUS_OPTIONS = [
 ];
 
 export function StepProjectInfo({ data, updateData }) {
-  const { apiKey } = useStore();
-
+  // Removed unused apiKey destructuring since we access it directly from store
+  
   const handleGenerateVision = async () => {
     if (!data.projectName) {
       alert("Please enter a project name first.");
       throw new Error("Project name missing");
     }
+    
+    // Get fresh API Key directly from store state to avoid stale closure issues
+    const currentApiKey = useStore.getState().apiKey;
+    
     const platformContext = data.platform ? `A ${data.platform} Application` : "A software application";
     const prompt = AI_PROMPTS.vision(data.projectName, platformContext); 
-    const response = await generateContent(apiKey, prompt);
+    const response = await generateContent(currentApiKey, prompt);
     // Parse JSON safely
     try {
        const jsonStr = response.substring(response.indexOf('{'), response.lastIndexOf('}') + 1);
        const result = JSON.parse(jsonStr);
        updateData('vision', result.vision);
        updateData('problemStatement', result.problemStatement);
-    } catch (e) {
+    } catch {
        // Fallback text if not JSON
        updateData('vision', response);
     }
